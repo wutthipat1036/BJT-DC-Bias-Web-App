@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BJT DC Bias Calculator</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>BJT DC Bias Calculator</h1>
+    <p>คำนวณจุดทำงาน (Q-point) ของทรานซิสเตอร์ BJT</p>
+  </header>
+
+  <main class="app">
+    <section class="panel input-panel">
+      <h2>พารามิเตอร์</h2>
+
+      <div class="field">
+        <label for="circuitType">ชนิดวงจร</label>
+        <select id="circuitType">
+          <option value="fixed">Fixed Bias</option>
+          <option value="divider">Voltage Divider Bias</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="transistorType">ชนิดทรานซิสเตอร์</label>
+        <select id="transistorType">
+          <option value="npn">NPN</option>
+          <option value="pnp">PNP</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="vcc">V<sub>CC</sub> (V)</label>
+        <input type="number" id="vcc" value="12" step="0.1" />
+      </div>
+
+      <div class="field">
+        <label for="vbe">V<sub>BE</sub> (V)</label>
+        <input type="number" id="vbe" value="0.7" step="0.01" />
+      </div>
+
+      <div class="field">
+        <label for="beta">β (h<sub>FE</sub>)</label>
+        <input type="number" id="beta" value="100" step="1" min="1" />
+      </div>
+
+      <!-- Fixed bias -->
+      <div class="fixed-fields">
+        <div class="field">
+          <label for="rb">R<sub>B</sub> (kΩ)</label>
+          <input type="number" id="rb" value="470" step="1" min="0" />
+        </div>
+        <div class="field">
+          <label for="rc">R<sub>C</sub> (kΩ)</label>
+          <input type="number" id="rc" value="2.2" step="0.1" min="0" />
+        </div>
+      </div>
+
+      <!-- Voltage divider bias -->
+      <div class="divider-fields hidden">
+        <div class="field">
+          <label for="r1">R<sub>1</sub> (kΩ)</label>
+          <input type="number" id="r1" value="47" step="0.1" min="0" />
+        </div>
+        <div class="field">
+          <label for="r2">R<sub>2</sub> (kΩ)</label>
+          <input type="number" id="r2" value="10" step="0.1" min="0" />
+        </div>
+        <div class="field">
+          <label for="rc2">R<sub>C</sub> (kΩ)</label>
+          <input type="number" id="rc2" value="4.7" step="0.1" min="0" />
+        </div>
+        <div class="field">
+          <label for="re">R<sub>E</sub> (kΩ)</label>
+          <input type="number" id="re" value="1" step="0.1" min="0" />
+        </div>
+      </div>
+    </section>
+
+    <section class="panel result-panel">
+      <h2>ผลลัพธ์</h2>
+      <div id="status" class="status-badge">—</div>
+      <dl class="results">
+        <div><dt>I<sub>B</sub></dt><dd id="outIb">—</dd></div>
+        <div><dt>I<sub>C</sub></dt><dd id="outIc">—</dd></div>
+        <div><dt>I<sub>E</sub></dt><dd id="outIe">—</dd></div>
+        <div><dt>V<sub>CE</sub></dt><dd id="outVce">—</dd></div>
+        <div><dt>V<sub>B</sub></dt><dd id="outVb">—</dd></div>
+        <div><dt>V<sub>E</sub></dt><dd id="outVe">—</dd></div>
+      </dl>
+      <p class="note" id="note"></p>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>BJT DC Bias Web App · MIT License</p>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
