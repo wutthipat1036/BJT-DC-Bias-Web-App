@@ -9,99 +9,220 @@
 </head>
 <body>
   <header class="hero">
-    <div class="wrap">
-      <div class="eyebrow">ENG29 2121 · LAB 02 · FLASK WEB APP</div>
-      <h1>BJT Common-Emitter DC Bias Calculator</h1>
-      <p>วงจร Voltage-Divider Bias · คำนวณจุดทำงาน (Q-point) ด้วย Python Backend</p>
-      <span class="tag">NPN</span>
-      <span class="tag">Forward-Active Approximation</span>
-      <span class="tag">Flask + Jinja</span>
+    <div class="wrap hero-inner">
+      <div class="hero-text">
+        <div class="eyebrow">ENG29 2121 · LAB 02</div>
+        <h1>BJT DC Bias Calculator</h1>
+        <p>วงจร Voltage-Divider Bias · คำนวณจุดทำงาน (Q-point) ด้วย Python Backend</p>
+      </div>
+      <div class="hero-pills">
+        <span class="pill">NPN</span>
+        <span class="pill">Forward-Active</span>
+        <span class="pill">Flask + Jinja</span>
+      </div>
     </div>
   </header>
 
-  <main class="wrap">
+  <main class="wrap layout">
+    <!-- ================= INPUT ================= -->
     <section class="card">
-      <div class="kicker">01 / INPUT PARAMETERS</div>
-      <h2>กรอกค่าชิ้นส่วน</h2>
+      <div class="card-head">
+        <span class="kicker">01 · INPUT PARAMETERS</span>
+        <h2>พารามิเตอร์วงจร</h2>
+      </div>
 
       {% if error %}
-      <div class="note error" role="alert"><strong>ข้อมูลไม่ถูกต้อง:</strong> {{ error }}</div>
+      <div class="alert alert-error" role="alert">
+        <span class="alert-badge">!</span>
+        <div><strong>ข้อมูลไม่ถูกต้อง</strong><br>{{ error }}</div>
+      </div>
       {% endif %}
 
       <form method="post" action="{{ url_for('index') }}" novalidate>
-        <div class="grid">
-          <label>V<sub>CC</sub> (V)
-            <input type="number" step="any" name="vcc" value="{{ form.vcc }}" required>
-          </label>
-          <label>β (h<sub>FE</sub>)
-            <input type="number" step="any" name="beta" value="{{ form.beta }}" required>
-          </label>
-          <label>V<sub>BE</sub> (V)
-            <input type="number" step="any" name="vbe" value="{{ form.vbe }}" required>
-          </label>
-          <label>R<sub>1</sub> (kΩ) · V<sub>CC</sub>–Base
-            <input type="number" step="any" name="r1" value="{{ form.r1 }}" required>
-          </label>
-          <label>R<sub>2</sub> (kΩ) · Base–Ground
-            <input type="number" step="any" name="r2" value="{{ form.r2 }}" required>
-          </label>
-          <label>R<sub>C</sub> (kΩ) · V<sub>CC</sub>–Collector
-            <input type="number" step="any" name="rc" value="{{ form.rc }}" required>
-          </label>
-          <label>R<sub>E</sub> (kΩ) · Emitter–Ground
-            <input type="number" step="any" name="re" value="{{ form.re }}" required>
-          </label>
-        </div>
+        <fieldset class="group">
+          <legend>แหล่งจ่ายและทรานซิสเตอร์</legend>
+          <div class="grid grid-3">
+            <label class="field">
+              <span class="label">V<sub>CC</sub></span>
+              <span class="input-wrap">
+                <input type="number" step="any" name="vcc" value="{{ form.vcc }}" required>
+                <span class="unit">V</span>
+              </span>
+            </label>
+            <label class="field">
+              <span class="label">β (h<sub>FE</sub>)</span>
+              <span class="input-wrap">
+                <input type="number" step="any" name="beta" value="{{ form.beta }}" required>
+              </span>
+            </label>
+            <label class="field">
+              <span class="label">V<sub>BE</sub></span>
+              <span class="input-wrap">
+                <input type="number" step="any" name="vbe" value="{{ form.vbe }}" required>
+                <span class="unit">V</span>
+              </span>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset class="group">
+          <legend>ตัวต้านทาน (kΩ)</legend>
+          <div class="grid grid-2">
+            <label class="field">
+              <span class="label">R<sub>1</sub> <small>V<sub>CC</sub>–Base</small></span>
+              <span class="input-wrap">
+                <input type="number" step="any" name="r1" value="{{ form.r1 }}" required>
+                <span class="unit">kΩ</span>
+              </span>
+            </label>
+            <label class="field">
+              <span class="label">R<sub>2</sub> <small>Base–Ground</small></span>
+              <span class="input-wrap">
+                <input type="number" step="any" name="r2" value="{{ form.r2 }}" required>
+                <span class="unit">kΩ</span>
+              </span>
+            </label>
+            <label class="field">
+              <span class="label">R<sub>C</sub> <small>V<sub>CC</sub>–Collector</small></span>
+              <span class="input-wrap">
+                <input type="number" step="any" name="rc" value="{{ form.rc }}" required>
+                <span class="unit">kΩ</span>
+              </span>
+            </label>
+            <label class="field">
+              <span class="label">R<sub>E</sub> <small>Emitter–Ground</small></span>
+              <span class="input-wrap">
+                <input type="number" step="any" name="re" value="{{ form.re }}" required>
+                <span class="unit">kΩ</span>
+              </span>
+            </label>
+          </div>
+        </fieldset>
+
         <button type="submit" class="btn">Calculate DC Bias</button>
         <p class="hint">ตัวต้านทานกรอกเป็น kΩ ระบบจะแปลงเป็น Ω ก่อนคำนวณ</p>
       </form>
     </section>
 
-    {% if result %}
-    <section class="card">
-      <div class="kicker">02 / DC BIAS RESULTS</div>
-      <h2>จุดทำงาน (Operating Point)</h2>
+    <!-- ================= RESULTS ================= -->
+    <section class="card result-card">
+      {% if result %}
+      <div class="card-head">
+        <span class="kicker">02 · DC BIAS RESULTS</span>
+        <h2>จุดทำงาน (Q-point)</h2>
+      </div>
 
       <div class="region region-{{ result.region }}">
         {% if result.region == 'active' %}
-          Active Region ✅
+          <span class="dot"></span> Active Region
         {% elif result.region == 'saturation' %}
-          Saturation ⚠️
+          <span class="dot"></span> Saturation
         {% else %}
-          Cut-off ⚠️
+          <span class="dot"></span> Cut-off
         {% endif %}
       </div>
 
       {% if result.warnings %}
-      <div class="note">
-        {% for warning in result.warnings %}<p>{{ warning }}</p>{% endfor %}
+      <div class="alert alert-warn">
+        <span class="alert-badge">!</span>
+        <div>
+          {% for warning in result.warnings %}<p>{{ warning }}</p>{% endfor %}
+        </div>
       </div>
       {% endif %}
 
-      <div class="scroll">
-        <table>
-          <thead>
-            <tr><th>ปริมาณ</th><th>ค่า</th><th>หน่วย</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>V<sub>B</sub></td><td>{{ '%.3f'|format(result.vb) }}</td><td>V</td></tr>
-            <tr><td>V<sub>E</sub></td><td>{{ '%.3f'|format(result.ve) }}</td><td>V</td></tr>
-            <tr><td>V<sub>C</sub></td><td>{{ '%.3f'|format(result.vc) }}</td><td>V</td></tr>
-            <tr><td>V<sub>CE</sub></td><td>{{ '%.3f'|format(result.vce) }}</td><td>V</td></tr>
-            <tr><td>I<sub>B</sub></td><td>{{ '%.2f'|format(result.ib * 1000000.0) }}</td><td>µA</td></tr>
-            <tr><td>I<sub>C</sub></td><td>{{ '%.3f'|format(result.ic_ma) }}</td><td>mA</td></tr>
-            <tr><td>I<sub>E</sub></td><td>{{ '%.3f'|format(result.ie_ma) }}</td><td>mA</td></tr>
-          </tbody>
-        </table>
+      <div class="stats-primary">
+        <div class="stat stat-big">
+          <span class="stat-label">V<sub>CE</sub></span>
+          <span class="stat-value">{{ '%.3f'|format(result.vce) }}<small>V</small></span>
+        </div>
+        <div class="stat stat-big">
+          <span class="stat-label">I<sub>C</sub></span>
+          <span class="stat-value">{{ '%.3f'|format(result.ic_ma) }}<small>mA</small></span>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat">
+          <span class="stat-label">V<sub>B</sub></span>
+          <span class="stat-value">{{ '%.3f'|format(result.vb) }}<small>V</small></span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">V<sub>E</sub></span>
+          <span class="stat-value">{{ '%.3f'|format(result.ve) }}<small>V</small></span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">V<sub>C</sub></span>
+          <span class="stat-value">{{ '%.3f'|format(result.vc) }}<small>V</small></span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">I<sub>B</sub></span>
+          <span class="stat-value">{{ '%.2f'|format(result.ib * 1000000.0) }}<small>µA</small></span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">I<sub>E</sub></span>
+          <span class="stat-value">{{ '%.3f'|format(result.ie_ma) }}<small>mA</small></span>
+        </div>
       </div>
 
       <details class="intermediate">
         <summary>ค่ากลางจาก Thevenin Equivalent</summary>
-        <p>V<sub>TH</sub> = {{ '%.4f'|format(result.vth) }} V</p>
-        <p>R<sub>TH</sub> = {{ '%.2f'|format(result.rth) }} Ω</p>
+        <div class="kv"><span>V<sub>TH</sub></span><span>{{ '%.4f'|format(result.vth) }} V</span></div>
+        <div class="kv"><span>R<sub>TH</sub></span><span>{{ '%.2f'|format(result.rth) }} Ω</span></div>
       </details>
+
+      {% else %}
+      <div class="card-head">
+        <span class="kicker">02 · DC BIAS RESULTS</span>
+        <h2>จุดทำงาน (Q-point)</h2>
+      </div>
+      <div class="empty">
+        <svg viewBox="0 0 360 300" role="img" aria-label="แผนผังวงจร Voltage-Divider Bias">
+          <defs>
+            <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 Z" fill="#33526b"/>
+            </marker>
+          </defs>
+          <!-- rails -->
+          <line class="w" x1="50" y1="24" x2="320" y2="24"/>
+          <line class="w" x1="50" y1="276" x2="320" y2="276"/>
+          <text class="lbl" x="50" y="16">+VCC</text>
+          <!-- ground symbol -->
+          <line class="w" x1="157" y1="276" x2="157" y2="282"/>
+          <line class="w" x1="147" y1="282" x2="167" y2="282"/>
+          <line class="w" x1="151" y1="286" x2="163" y2="286"/>
+          <line class="w" x1="155" y1="290" x2="159" y2="290"/>
+          <!-- divider -->
+          <line class="w" x1="90" y1="24" x2="90" y2="56"/>
+          <rect class="comp" x="82" y="56" width="16" height="48" rx="2"/>
+          <line class="w" x1="90" y1="104" x2="90" y2="178"/>
+          <rect class="comp" x="82" y="178" width="16" height="48" rx="2"/>
+          <line class="w" x1="90" y1="226" x2="90" y2="276"/>
+          <text class="lbl" x="56" y="84">R1</text>
+          <text class="lbl" x="56" y="206">R2</text>
+          <!-- base wire -->
+          <line class="w" x1="90" y1="150" x2="164" y2="150"/>
+          <!-- transistor -->
+          <circle class="w" cx="200" cy="150" r="36"/>
+          <line x1="180" y1="128" x2="180" y2="172" stroke="#33526b" stroke-width="5" stroke-linecap="round"/>
+          <line class="w" x1="180" y1="138" x2="224" y2="112"/>
+          <line class="w" x1="180" y1="162" x2="224" y2="188" marker-end="url(#arrow)"/>
+          <text class="lbl" x="204" y="155">Q1</text>
+          <!-- collector branch -->
+          <line class="w" x1="224" y1="24" x2="224" y2="50"/>
+          <rect class="comp" x="216" y="50" width="16" height="48" rx="2"/>
+          <line class="w" x1="224" y1="98" x2="224" y2="112"/>
+          <text class="lbl" x="238" y="80">RC</text>
+          <!-- emitter branch -->
+          <line class="w" x1="224" y1="188" x2="224" y2="202"/>
+          <rect class="comp" x="216" y="202" width="16" height="48" rx="2"/>
+          <line class="w" x1="224" y1="250" x2="224" y2="276"/>
+          <text class="lbl" x="238" y="232">RE</text>
+        </svg>
+        <p>กรอกค่าแล้วกด <strong>Calculate DC Bias</strong><br>เพื่อดูจุดทำงานของวงจร</p>
+      </div>
+      {% endif %}
     </section>
-    {% endif %}
   </main>
 
   <footer>ENG29 2121 · Lab 02 · Flask BJT DC Bias Web App · MIT License</footer>
