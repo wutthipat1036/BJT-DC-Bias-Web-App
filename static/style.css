@@ -1,0 +1,273 @@
+:root {
+  --navy: #103658;
+  --blue: #1d638b;
+  --teal: #0c8078;
+  --paper: #f5f8fc;
+  --ink: #17344b;
+  --muted: #546d83;
+  --line: #d3e0ec;
+  --orange: #b85c2c;
+  --green: #178875;
+  --red: #b23b3b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 16px/1.7 Tahoma, "Noto Sans Thai", "Leelawadee UI", Arial, sans-serif;
+}
+
+.wrap {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  background: linear-gradient(115deg, #0c304f, #20577d 70%, #0c6e79);
+  color: #fff;
+  padding: 44px 24px;
+}
+
+.hero h1 {
+  font-size: clamp(1.6rem, 4vw, 2.3rem);
+  line-height: 1.3;
+  margin: 10px 0 12px;
+}
+
+.hero p {
+  color: #ddf0fd;
+  margin: 0 0 6px;
+}
+
+.eyebrow {
+  font-size: 13px;
+  font-weight: bold;
+  color: #d2ecfa;
+  letter-spacing: 0.04em;
+}
+
+.tag {
+  display: inline-block;
+  font-weight: bold;
+  font-size: 12px;
+  color: #eaf8ff;
+  border: 1px solid #6fa8c9;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 12px 8px 0 0;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+/* ---------- Cards ---------- */
+main {
+  padding: 20px 20px 52px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  margin: 18px 0;
+  padding: 24px 28px;
+  box-shadow: 0 3px 14px rgba(16, 54, 88, 0.05);
+}
+
+.card h2 {
+  font-size: 1.45rem;
+  line-height: 1.35;
+  color: #113c60;
+  margin: 5px 0 14px;
+}
+
+.kicker {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--blue);
+}
+
+/* ---------- Form ---------- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px 18px;
+  margin: 6px 0 18px;
+}
+
+.grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.grid input {
+  padding: 0.62rem 0.75rem;
+  border: 1px solid #c3d4e2;
+  border-radius: 8px;
+  font-size: 0.98rem;
+  color: #0f172a;
+  background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.grid input:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(29, 99, 139, 0.16);
+}
+
+.btn {
+  display: inline-block;
+  background: linear-gradient(120deg, #1d638b, #0c8078);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.8rem 1.6rem;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.08s, box-shadow 0.15s;
+}
+
+.btn:hover {
+  box-shadow: 0 6px 16px rgba(12, 128, 120, 0.3);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.hint {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin: 10px 0 0;
+}
+
+/* ---------- Notes / warnings ---------- */
+.note {
+  background: #fff4e9;
+  border-left: 4px solid var(--orange);
+  padding: 12px 15px;
+  margin: 12px 0;
+  border-radius: 0 6px 6px 0;
+}
+
+.note p {
+  margin: 4px 0;
+}
+
+.note.error {
+  background: #fdecec;
+  border-left-color: var(--red);
+  color: #7c2626;
+}
+
+/* ---------- Results ---------- */
+.region {
+  display: inline-block;
+  font-weight: 800;
+  padding: 0.5rem 1.1rem;
+  border-radius: 999px;
+  margin-bottom: 14px;
+}
+
+.region-active {
+  background: #e9f6f2;
+  color: #0d6b5c;
+}
+
+.region-saturation {
+  background: #fdecec;
+  color: #9a2f2f;
+}
+
+.region-cutoff {
+  background: #fdf3e2;
+  color: #8a5a17;
+}
+
+.scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 14.5px;
+}
+
+td,
+th {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  background: #e6f1fa;
+  color: #123e5c;
+}
+
+tbody tr:nth-child(even) {
+  background: #f7fbfe;
+}
+
+td:nth-child(2) {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.intermediate {
+  margin-top: 16px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.intermediate summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--blue);
+}
+
+.intermediate p {
+  margin: 6px 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Footer ---------- */
+footer {
+  text-align: center;
+  padding: 22px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+@media (max-width: 640px) {
+  main {
+    padding: 10px;
+  }
+
+  .card {
+    padding: 17px 15px;
+  }
+
+  .hero {
+    padding: 32px 17px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

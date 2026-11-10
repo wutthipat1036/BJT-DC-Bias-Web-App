@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BJT DC Bias Calculator · Voltage Divider</title>
+  <meta name="description" content="Flask web app that computes the DC operating point of an NPN BJT common-emitter voltage-divider bias circuit.">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <div class="eyebrow">ENG29 2121 · LAB 02 · FLASK WEB APP</div>
+      <h1>BJT Common-Emitter DC Bias Calculator</h1>
+      <p>วงจร Voltage-Divider Bias · คำนวณจุดทำงาน (Q-point) ด้วย Python Backend</p>
+      <span class="tag">NPN</span>
+      <span class="tag">Forward-Active Approximation</span>
+      <span class="tag">Flask + Jinja</span>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="card">
+      <div class="kicker">01 / INPUT PARAMETERS</div>
+      <h2>กรอกค่าชิ้นส่วน</h2>
+
+      {% if error %}
+      <div class="note error" role="alert"><strong>ข้อมูลไม่ถูกต้อง:</strong> {{ error }}</div>
+      {% endif %}
+
+      <form method="post" action="{{ url_for('index') }}" novalidate>
+        <div class="grid">
+          <label>V<sub>CC</sub> (V)
+            <input type="number" step="any" name="vcc" value="{{ form.vcc }}" required>
+          </label>
+          <label>β (h<sub>FE</sub>)
+            <input type="number" step="any" name="beta" value="{{ form.beta }}" required>
+          </label>
+          <label>V<sub>BE</sub> (V)
+            <input type="number" step="any" name="vbe" value="{{ form.vbe }}" required>
+          </label>
+          <label>R<sub>1</sub> (kΩ) · V<sub>CC</sub>–Base
+            <input type="number" step="any" name="r1" value="{{ form.r1 }}" required>
+          </label>
+          <label>R<sub>2</sub> (kΩ) · Base–Ground
+            <input type="number" step="any" name="r2" value="{{ form.r2 }}" required>
+          </label>
+          <label>R<sub>C</sub> (kΩ) · V<sub>CC</sub>–Collector
+            <input type="number" step="any" name="rc" value="{{ form.rc }}" required>
+          </label>
+          <label>R<sub>E</sub> (kΩ) · Emitter–Ground
+            <input type="number" step="any" name="re" value="{{ form.re }}" required>
+          </label>
+        </div>
+        <button type="submit" class="btn">Calculate DC Bias</button>
+        <p class="hint">ตัวต้านทานกรอกเป็น kΩ ระบบจะแปลงเป็น Ω ก่อนคำนวณ</p>
+      </form>
+    </section>
+
+    {% if result %}
+    <section class="card">
+      <div class="kicker">02 / DC BIAS RESULTS</div>
+      <h2>จุดทำงาน (Operating Point)</h2>
+
+      <div class="region region-{{ result.region }}">
+        {% if result.region == 'active' %}
+          Active Region ✅
+        {% elif result.region == 'saturation' %}
+          Saturation ⚠️
+        {% else %}
+          Cut-off ⚠️
+        {% endif %}
+      </div>
+
+      {% if result.warnings %}
+      <div class="note">
+        {% for warning in result.warnings %}<p>{{ warning }}</p>{% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr><th>ปริมาณ</th><th>ค่า</th><th>หน่วย</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>V<sub>B</sub></td><td>{{ '%.3f'|format(result.vb) }}</td><td>V</td></tr>
+            <tr><td>V<sub>E</sub></td><td>{{ '%.3f'|format(result.ve) }}</td><td>V</td></tr>
+            <tr><td>V<sub>C</sub></td><td>{{ '%.3f'|format(result.vc) }}</td><td>V</td></tr>
+            <tr><td>V<sub>CE</sub></td><td>{{ '%.3f'|format(result.vce) }}</td><td>V</td></tr>
+            <tr><td>I<sub>B</sub></td><td>{{ '%.2f'|format(result.ib * 1000000.0) }}</td><td>µA</td></tr>
+            <tr><td>I<sub>C</sub></td><td>{{ '%.3f'|format(result.ic_ma) }}</td><td>mA</td></tr>
+            <tr><td>I<sub>E</sub></td><td>{{ '%.3f'|format(result.ie_ma) }}</td><td>mA</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <details class="intermediate">
+        <summary>ค่ากลางจาก Thevenin Equivalent</summary>
+        <p>V<sub>TH</sub> = {{ '%.4f'|format(result.vth) }} V</p>
+        <p>R<sub>TH</sub> = {{ '%.2f'|format(result.rth) }} Ω</p>
+      </details>
+    </section>
+    {% endif %}
+  </main>
+
+  <footer>ENG29 2121 · Lab 02 · Flask BJT DC Bias Web App · MIT License</footer>
+</body>
+</html>
