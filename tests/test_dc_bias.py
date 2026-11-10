@@ -35,11 +35,12 @@ REF = {
 class ReferenceCalculationTest(unittest.TestCase):
     def test_reference_operating_point(self):
         result = compute_voltage_divider_bias(**REF)
-        self.assertAlmostEqual(result.vb, 1.942, delta=0.01)
-        self.assertAlmostEqual(result.ve, 1.242, delta=0.01)
-        self.assertAlmostEqual(result.vc, 9.294, delta=0.01)
-        self.assertAlmostEqual(result.vce, 8.052, delta=0.01)
-        self.assertAlmostEqual(result.ic_ma, 1.230, delta=0.01)
+        # Approximate analysis (I_B ≈ 0)
+        self.assertAlmostEqual(result.vb, 2.164, delta=0.01)
+        self.assertAlmostEqual(result.ve, 1.464, delta=0.01)
+        self.assertAlmostEqual(result.vc, 8.779, delta=0.01)
+        self.assertAlmostEqual(result.vce, 7.315, delta=0.01)
+        self.assertAlmostEqual(result.ic_ma, 1.464, delta=0.01)
 
     def test_reference_is_active(self):
         result = compute_voltage_divider_bias(**REF)

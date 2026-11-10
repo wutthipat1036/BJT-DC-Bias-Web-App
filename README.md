@@ -69,19 +69,21 @@ python -m unittest discover -s tests -v
 
 ## 📐 Engineering Model
 
-แบบจำลอง Forward-Active (β คงที่, VBE คงที่):
+แอปใช้ **วิธี Approximate (I_B ≈ 0)** สำหรับวงจร Voltage-Divider Bias:
 
 ```
-VTH = VCC × R2 / (R1 + R2)
-RTH = R1·R2 / (R1 + R2)
-IB  = (VTH − VBE) / (RTH + (β + 1)·RE)
-IC  = β · IB
-IE  = (β + 1) · IB
-VE  = IE · RE
-VB  = VE + VBE
+VB  = VTH = VCC × R2 / (R1 + R2)
+VE  = VB − VBE
+IE  = VE / RE
+IC  ≈ IE
+IB  = IC / β
 VC  = VCC − IC · RC
 VCE = VC − VE
 ```
+
+> วิธี Exact (Thevenin) ที่คิดกระแสฐานโหลด divider จะให้ค่าต่างออกไปเล็กน้อย
+> (VB ≈ 1.94 V, VE ≈ 1.24 V, VC ≈ 9.29 V) — เอกสาร Lab ระบุสมการ Exact ไว้
+> แต่แอปนี้เลือกใช้วิธี Approximate ตามภาพตัวอย่าง
 
 ### ค่าอ้างอิงสำหรับตรวจสอบ
 
@@ -92,15 +94,15 @@ VCE = VC − VE
 | RC / RE | 2.2 kΩ / 1 kΩ |
 | β / VBE | 100 / 0.70 V |
 
-ผลลัพธ์ที่ควรได้ (Forward-Active):
+ผลลัพธ์ที่ควรได้ (Approximate, Forward-Active):
 
 | ปริมาณ | ค่า |
 |---|---|
-| VB | ≈ 1.942 V |
-| VE | ≈ 1.242 V |
-| VC | ≈ 9.294 V |
-| VCE | ≈ 8.052 V |
-| IC | ≈ 1.230 mA |
+| VB | ≈ 2.164 V |
+| VE | ≈ 1.464 V |
+| VC | ≈ 8.779 V |
+| VCE | ≈ 7.315 V |
+| IC | ≈ 1.464 mA |
 
 > ผลนอกช่วง Forward-Active (Cut-off / Saturation) จะแสดง Warning และไม่ควร
 > ถือว่าเป็นค่าที่เชื่อถือได้โดยไม่มีข้อจำกัดกำกับ

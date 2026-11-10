@@ -13,7 +13,9 @@ Units
 
 Model
 -----
-The Forward-Active approximation is used with a constant β and a constant
+The *approximate* voltage-divider analysis is used: the base current is
+assumed negligible (I_B ≈ 0), so the R1/R2 divider sets the base voltage
+directly. The Forward-Active approximation uses a constant β and a constant
 V_BE. Results outside the forward-active region are still computed but are
 flagged with warnings; callers must not present them as trustworthy without
 surfacing those warnings.
@@ -107,6 +109,9 @@ def compute_voltage_divider_bias(
 ) -> BiasResult:
     """Compute the DC operating point of an NPN voltage-divider bias circuit.
 
+    Uses the **approximate** analysis (I_B ≈ 0): the divider voltage V_TH is
+    taken directly as V_B, so the base current does not load the divider.
+
     Parameters are in SI units (Ω, V). Returns a :class:`BiasResult` whose
     currents are in amperes. Raises :class:`ValidationError` for invalid input.
     """
@@ -118,18 +123,17 @@ def compute_voltage_divider_bias(
     _require_positive("β", beta)
     _require_positive("VBE", vbe)
 
-    # Thevenin equivalent of the base divider
+    # Approximate voltage-divider analysis: I_B ≈ 0, so the divider sets V_B.
     vth = vcc * r2 / (r1 + r2)
-    rth = r1 * r2 / (r1 + r2)
+    rth = r1 * r2 / (r1 + r2)  # informational only (not used by the approximation)
 
-    # Base current from the Thevenin loop
-    ib = (vth - vbe) / (rth + (beta + 1.0) * re)
-    ic = beta * ib
-    ie = (beta + 1.0) * ib
+    vb = vth
+    ve = vb - vbe
+    ie = ve / re
+    ic = ie  # I_B ≈ 0 → I_C ≈ I_E
+    ib = ic / beta
 
     # Node voltages
-    ve = ie * re
-    vb = ve + vbe
     vc = vcc - ic * rc
     vce = vc - ve
 
