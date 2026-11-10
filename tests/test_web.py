@@ -38,9 +38,9 @@ class WebRouteTest(unittest.TestCase):
         response = self.client.post("/", data=VALID)
         self.assertEqual(response.status_code, 200)
         body = response.get_data(as_text=True)
-        self.assertIn("Active Region", body)
-        # V_C reference value from the independent calculation.
-        self.assertIn("9.294", body)
+        self.assertIn("Active region approximation OK", body)
+        # V_C reference value from the independent calculation (2 dp display).
+        self.assertIn("9.29", body)
 
     def test_post_invalid_shows_error(self):
         response = self.client.post("/", data=dict(VALID, r1="0"))
