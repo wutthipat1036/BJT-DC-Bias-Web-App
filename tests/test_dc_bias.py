@@ -17,6 +17,8 @@ from dc_bias import (  # noqa: E402
     CUTOFF,
     SATURATION,
     ValidationError,
+    compute_emitter_bias,
+    compute_fixed_bias,
     compute_voltage_divider_bias,
 )
 
@@ -77,6 +79,91 @@ class RegionWarningTest(unittest.TestCase):
     def test_saturation_when_vce_too_low(self):
         # A large R_C drives V_CE negative → saturation.
         result = compute_voltage_divider_bias(**dict(REF, rc=10_000.0))
+        self.assertEqual(result.region, SATURATION)
+        self.assertTrue(result.warnings)
+
+
+# Reference values for the single-resistor bias variants (resistors in Ω).
+FIXED_REF = {
+    "vcc": 12.0,
+    "rb": 470_000.0,
+    "rc": 2_200.0,
+    "beta": 100.0,
+    "vbe": 0.70,
+}
+
+EMITTER_REF = {
+    "vcc": 12.0,
+    "rb": 470_000.0,
+    "rc": 2_200.0,
+    "re": 1_000.0,
+    "beta": 100.0,
+    "vbe": 0.70,
+}
+
+
+class FixedBiasTest(unittest.TestCase):
+    def test_reference_operating_point(self):
+        result = compute_fixed_bias(**FIXED_REF)
+        self.assertAlmostEqual(result.ib * 1e6, 24.043, delta=0.01)
+        self.assertAlmostEqual(result.ic_ma, 2.4043, delta=0.001)
+        self.assertAlmostEqual(result.ie_ma, 2.4283, delta=0.001)
+        self.assertAlmostEqual(result.vb, 0.70, delta=1e-9)
+        self.assertAlmostEqual(result.ve, 0.0, delta=1e-9)
+        self.assertAlmostEqual(result.vc, 6.7106, delta=0.001)
+        self.assertAlmostEqual(result.vce, 6.7106, delta=0.001)
+
+    def test_reference_is_active(self):
+        result = compute_fixed_bias(**FIXED_REF)
+        self.assertEqual(result.region, ACTIVE)
+        self.assertTrue(result.is_active)
+        self.assertEqual(result.warnings, [])
+        self.assertEqual(result.bias_type, "fixed")
+
+    def test_zero_rb_rejected(self):
+        with self.assertRaises(ValidationError):
+            compute_fixed_bias(**dict(FIXED_REF, rb=0.0))
+
+    def test_cutoff_when_vcc_below_vbe(self):
+        result = compute_fixed_bias(**dict(FIXED_REF, vcc=0.5))
+        self.assertEqual(result.region, CUTOFF)
+        self.assertTrue(result.warnings)
+
+    def test_saturation_when_vce_too_low(self):
+        result = compute_fixed_bias(**dict(FIXED_REF, rc=10_000.0))
+        self.assertEqual(result.region, SATURATION)
+        self.assertTrue(result.warnings)
+
+
+class EmitterBiasTest(unittest.TestCase):
+    def test_reference_operating_point(self):
+        result = compute_emitter_bias(**EMITTER_REF)
+        self.assertAlmostEqual(result.ib * 1e6, 19.790, delta=0.01)
+        self.assertAlmostEqual(result.ic_ma, 1.9790, delta=0.001)
+        self.assertAlmostEqual(result.ie_ma, 1.9988, delta=0.001)
+        self.assertAlmostEqual(result.ve, 1.9988, delta=0.001)
+        self.assertAlmostEqual(result.vb, 2.6988, delta=0.001)
+        self.assertAlmostEqual(result.vc, 7.6462, delta=0.001)
+        self.assertAlmostEqual(result.vce, 5.6475, delta=0.001)
+
+    def test_reference_is_active(self):
+        result = compute_emitter_bias(**EMITTER_REF)
+        self.assertEqual(result.region, ACTIVE)
+        self.assertTrue(result.is_active)
+        self.assertEqual(result.warnings, [])
+        self.assertEqual(result.bias_type, "emitter")
+
+    def test_zero_re_rejected(self):
+        with self.assertRaises(ValidationError):
+            compute_emitter_bias(**dict(EMITTER_REF, re=0.0))
+
+    def test_cutoff_when_vcc_below_vbe(self):
+        result = compute_emitter_bias(**dict(EMITTER_REF, vcc=0.5))
+        self.assertEqual(result.region, CUTOFF)
+        self.assertTrue(result.warnings)
+
+    def test_saturation_when_vce_too_low(self):
+        result = compute_emitter_bias(**dict(EMITTER_REF, rc=10_000.0))
         self.assertEqual(result.region, SATURATION)
         self.assertTrue(result.warnings)
 

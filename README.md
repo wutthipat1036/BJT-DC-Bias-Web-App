@@ -1,12 +1,13 @@
 # BJT DC Bias Web App
 
 Flask Web Application สำหรับคำนวณ **DC Operating Point (Q-point)** ของวงจร
-**NPN BJT Common-Emitter แบบ Voltage-Divider Bias** โดยใช้ Python Backend
-คำนวณจริง (ไม่ใช่ค่าฮาร์ดโค้ดใน HTML)
+**NPN BJT Common-Emitter** 3 ชนิดไบแอส — **Voltage Divider**, **Fixed Bias**
+และ **Emitter Bias** — โดยใช้ Python Backend คำนวณจริง (ไม่ใช่ค่าฮาร์ดโค้ดใน HTML)
 
 ## ✨ Features
 
-- รับค่า `VCC, R1, R2, RC, RE, β, VBE` ผ่านหน้าเว็บ
+- เลือก **Bias Type** จาก dropdown: Voltage Divider / Fixed Bias / Emitter Bias
+- ฟิลด์กรอกค่า สมการ และแผนผังวงจรเปลี่ยนตามชนิดไบแอสที่เลือก
 - Python Backend คำนวณ `VB, VE, VC, VCE, IB, IC, IE`
 - แปลงหน่วยตัวต้านทาน kΩ → Ω ก่อนคำนวณ
 - แสดงหน่วยกำกับทุกค่า และแจ้ง **Operating Region** (Active / Saturation / Cut-off)
@@ -69,7 +70,9 @@ python -m unittest discover -s tests -v
 
 ## 📐 Engineering Model
 
-แอปใช้ **วิธี Approximate (I_B ≈ 0)** สำหรับวงจร Voltage-Divider Bias:
+แอปรองรับ 3 ชนิดไบแอส (เลือกได้จาก dropdown **Bias Type**)
+
+### 1) Voltage Divider Bias (Approximate, I_B ≈ 0)
 
 ```
 VB  = VTH = VCC × R2 / (R1 + R2)
@@ -85,16 +88,32 @@ VCE = VC − VE
 > (VB ≈ 1.94 V, VE ≈ 1.24 V, VC ≈ 9.29 V) — เอกสาร Lab ระบุสมการ Exact ไว้
 > แต่แอปนี้เลือกใช้วิธี Approximate ตามภาพตัวอย่าง
 
+### 2) Fixed Bias
+
+```
+IB  = (VCC − VBE) / RB
+IC  = β · IB
+IE  = (β + 1) · IB
+VB  = VBE          (VE = 0)
+VC  = VCC − IC · RC
+VCE = VC
+```
+
+### 3) Emitter Bias (Emitter-Stabilized)
+
+```
+IB  = (VCC − VBE) / (RB + (β + 1)·RE)
+IC  = β · IB
+IE  = (β + 1) · IB
+VE  = IE · RE
+VB  = VE + VBE
+VC  = VCC − IC · RC
+VCE = VC − VE
+```
+
 ### ค่าอ้างอิงสำหรับตรวจสอบ
 
-| พารามิเตอร์ | ค่า |
-|---|---|
-| VCC | 12 V |
-| R1 / R2 | 100 kΩ / 22 kΩ |
-| RC / RE | 2.2 kΩ / 1 kΩ |
-| β / VBE | 100 / 0.70 V |
-
-ผลลัพธ์ที่ควรได้ (Approximate, Forward-Active):
+**Voltage Divider** — VCC=12 V, R1=100 kΩ, R2=22 kΩ, RC=2.2 kΩ, RE=1 kΩ, β=100, VBE=0.70 V
 
 | ปริมาณ | ค่า |
 |---|---|
@@ -102,7 +121,23 @@ VCE = VC − VE
 | VE | ≈ 1.464 V |
 | VC | ≈ 8.779 V |
 | VCE | ≈ 7.315 V |
-| IC | ≈ 1.464 mA |
+| IB / IC / IE | ≈ 14.64 µA / 1.464 mA / 1.464 mA |
+
+**Fixed Bias** — VCC=12 V, RB=470 kΩ, RC=2.2 kΩ, β=100, VBE=0.70 V
+
+| ปริมาณ | ค่า |
+|---|---|
+| VB / VE | 0.70 V / 0 V |
+| VC / VCE | ≈ 6.711 V / 6.711 V |
+| IB / IC / IE | ≈ 24.04 µA / 2.404 mA / 2.428 mA |
+
+**Emitter Bias** — VCC=12 V, RB=470 kΩ, RC=2.2 kΩ, RE=1 kΩ, β=100, VBE=0.70 V
+
+| ปริมาณ | ค่า |
+|---|---|
+| VB / VE | ≈ 2.699 V / 1.999 V |
+| VC / VCE | ≈ 7.646 V / 5.647 V |
+| IB / IC / IE | ≈ 19.79 µA / 1.979 mA / 1.999 mA |
 
 > ผลนอกช่วง Forward-Active (Cut-off / Saturation) จะแสดง Warning และไม่ควร
 > ถือว่าเป็นค่าที่เชื่อถือได้โดยไม่มีข้อจำกัดกำกับ

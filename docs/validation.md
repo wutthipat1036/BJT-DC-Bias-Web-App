@@ -1,6 +1,8 @@
 # Validation — การตรวจสอบความถูกต้อง
 
-## ค่าทดลองเริ่มต้น
+## 1) Voltage Divider Bias
+
+### ค่าทดลองเริ่มต้น
 
 | พารามิเตอร์ | ค่า |
 |---|---|
@@ -29,16 +31,50 @@ VCE = 8.7793 − 1.4639               = 7.3154 V
 > หมายเหตุ: วิธี Exact (Thevenin) ที่คิดกระแสฐานจะได้ VB≈1.942, VE≈1.242,
 > VC≈9.294, VCE≈8.052, IC≈1.230 mA — แอปนี้เลือกใช้วิธี Approximate
 
+## 2) Fixed Bias
+
+พารามิเตอร์: VCC=12 V, RB=470 kΩ, RC=2.2 kΩ, β=100, VBE=0.70 V
+
+```
+IB  = (12 − 0.70) / 470k             = 24.043 µA
+IC  = 100 × 24.043µ                  = 2.4043 mA
+IE  = 101 × 24.043µ                  = 2.4283 mA
+VB  = VBE                            = 0.70 V
+VE  = 0                              = 0 V
+VC  = 12 − 2.4043m × 2.2k            = 6.7106 V
+VCE = VC − VE                        = 6.7106 V
+```
+
+ผลที่ได้อยู่ใน **Active Region** (VCE ≈ 6.71 V > 0.2 V)
+
+## 3) Emitter Bias
+
+พารามิเตอร์: VCC=12 V, RB=470 kΩ, RC=2.2 kΩ, RE=1 kΩ, β=100, VBE=0.70 V
+
+```
+IB  = (12 − 0.70) / (470k + 101×1k)  = 19.790 µA
+IC  = 100 × 19.790µ                  = 1.9790 mA
+IE  = 101 × 19.790µ                  = 1.9988 mA
+VE  = 1.9988m × 1k                   = 1.9988 V
+VB  = 1.9988 + 0.70                  = 2.6988 V
+VC  = 12 − 1.9790m × 2.2k            = 7.6462 V
+VCE = 7.6462 − 1.9988                = 5.6475 V
+```
+
+ผลที่ได้อยู่ใน **Active Region** (VCE ≈ 5.65 V > 0.2 V)
+
 ## ผลการทดสอบที่คาดหวัง
 
 | รายการ | ผลที่คาด |
 |---|---|
-| Reference Q-point | VB≈2.164, VE≈1.464, VC≈8.779, VCE≈7.315, IC≈1.464 mA |
+| Voltage Divider Q-point | VB≈2.164, VE≈1.464, VC≈8.779, VCE≈7.315, IC≈1.464 mA |
+| Fixed Bias Q-point | VB=0.70, VE=0, VC≈6.711, VCE≈6.711, IC≈2.404 mA |
+| Emitter Bias Q-point | VB≈2.699, VE≈1.999, VC≈7.646, VCE≈5.647, IC≈1.979 mA |
 | R ≤ 0 | ValidationError |
 | β ≤ 0 | ValidationError |
 | VCC ≤ 0 | ValidationError |
 | ค่าไม่ใช่ตัวเลข | ValidationError |
-| VTH ≤ VBE | region = cutoff + warning |
+| VCC ≤ VBE | region = cutoff + warning |
 | VCE ≤ 0.2 V | region = saturation + warning |
 
 ## Automated Tests

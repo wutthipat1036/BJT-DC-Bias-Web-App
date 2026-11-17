@@ -3,21 +3,21 @@
 ## เป้าหมาย
 
 สร้าง Web Application ที่รันบน Local Server ด้วย Flask ซึ่งรับค่าชิ้นส่วนของวงจร
-BJT Common-Emitter แบบ Voltage-Divider Bias แล้วคำนวณ DC Operating Point ด้วย
-Python Backend จริง
+BJT Common-Emitter แล้วคำนวณ DC Operating Point ด้วย Python Backend จริง
+รองรับ 3 ชนิดไบแอส: Voltage Divider, Fixed Bias และ Emitter Bias
 
 ## ขอบเขต (Week 2)
 
-- **ทำ**: วงจร Voltage-Divider Bias, NPN, Forward-Active approximation
+- **ทำ**: Voltage-Divider Bias, Fixed Bias, Emitter Bias, NPN, Forward-Active approximation
 - **ยังไม่ทำ**: AC analysis, Transient, Bode plot, Signal Generator, FET, SPICE solver
 
 ## การแยกความรับผิดชอบ
 
 | ไฟล์ | หน้าที่ |
 |---|---|
-| `app.py` | HTTP routes, unit conversion (kΩ → Ω), render template |
-| `dc_bias.py` | สมการวิศวกรรมล้วน ๆ, validation, region detection |
-| `templates/index.html` | ฟอร์มกรอกค่า + ตารางผลลัพธ์ (Jinja) |
+| `app.py` | HTTP routes, unit conversion (kΩ → Ω), bias-type dispatch, render template |
+| `dc_bias.py` | สมการวิศวกรรมล้วน ๆ (ทั้ง 3 ชนิดไบแอส), validation, region detection |
+| `templates/index.html` | ฟอร์มกรอกค่า + แผนผังวงจร + ตารางผลลัพธ์ (Jinja + vanilla JS) |
 | `static/style.css` | หน้าตา/เลย์เอาต์ |
 | `tests/` | unit test + HTTP test |
 
