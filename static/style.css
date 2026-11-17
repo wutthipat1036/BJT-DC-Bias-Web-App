@@ -244,6 +244,31 @@ body {
   box-shadow: 0 0 0 4px rgba(29, 99, 139, 0.14);
 }
 
+/* Compact per-field unit selector sitting inside the input box. */
+.input-wrap.has-unit input {
+  padding-right: 4.8rem;
+}
+
+.input-wrap .unit-select {
+  position: absolute;
+  right: 6px;
+  width: auto;
+  padding: 0.3rem 1.35rem 0.3rem 0.5rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--muted);
+  background-color: #eef4fa;
+  border: 1px solid #d7e3ee;
+  border-radius: 7px;
+  background-position: calc(100% - 9px) 52%, calc(100% - 4px) 52%;
+  background-size: 5px 5px, 5px 5px;
+}
+
+.input-wrap .unit-select:focus {
+  color: var(--ink);
+  background-color: #fff;
+}
+
 .unit {
   position: absolute;
   right: 0.7rem;

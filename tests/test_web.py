@@ -86,6 +86,32 @@ class WebRouteTest(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn("ข้อมูลไม่ถูกต้อง", response.get_data(as_text=True))
 
+    def test_post_megohm_unit_matches_kilohm(self):
+        data = dict(
+            FIXED,
+            rb="0.47",
+            rb_unit="meg",
+            rc_unit="k",
+            vcc_unit="v",
+            vbe_unit="v",
+        )
+        response = self.client.post("/", data=data)
+        self.assertEqual(response.status_code, 200)
+        # 0.47 MΩ must behave exactly like 470 kΩ → V_C = 6.71 V.
+        self.assertIn("6.71", response.get_data(as_text=True))
+
+    def test_post_millivolt_unit_matches_volt(self):
+        data = dict(VALID, vbe="700", vbe_unit="mv", vcc_unit="v")
+        response = self.client.post("/", data=data)
+        self.assertEqual(response.status_code, 200)
+        # 700 mV must behave exactly like 0.70 V → V_C = 8.78 V.
+        self.assertIn("8.78", response.get_data(as_text=True))
+
+    def test_post_invalid_unit_shows_error(self):
+        response = self.client.post("/", data=dict(VALID, rc_unit="garbage"))
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("ข้อมูลไม่ถูกต้อง", response.get_data(as_text=True))
+
     def test_post_invalid_shows_error(self):
         response = self.client.post("/", data=dict(VALID, r1="0"))
         self.assertEqual(response.status_code, 400)

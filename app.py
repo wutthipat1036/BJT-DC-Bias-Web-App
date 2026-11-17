@@ -18,23 +18,38 @@ from dc_bias import (
 
 app = Flask(__name__)
 
-#: UI inputs are expressed in kΩ for the resistors; the engineering module
-#: works in Ω, so we convert on the boundary.
-KILO = 1000.0
-
 #: Supported bias topologies (values match the ``<option>`` values in the UI).
 BIAS_TYPES = ("voltage_divider", "fixed", "emitter")
+
+#: Unit metadata for the UI: code -> conversion factor to SI + display label.
+#: The engineering module works in Ω and V, so we convert on the boundary.
+RESISTOR_UNITS = {
+    "ohm": {"factor": 1.0, "label": "Ω"},
+    "k": {"factor": 1_000.0, "label": "kΩ"},
+    "meg": {"factor": 1_000_000.0, "label": "MΩ"},
+}
+VOLTAGE_UNITS = {
+    "v": {"factor": 1.0, "label": "V"},
+    "mv": {"factor": 0.001, "label": "mV"},
+}
 
 DEFAULT_FORM = {
     "bias_type": "voltage_divider",
     "vcc": "12",
+    "vcc_unit": "v",
     "r1": "100",
+    "r1_unit": "k",
     "r2": "22",
+    "r2_unit": "k",
     "rb": "470",
+    "rb_unit": "k",
     "rc": "2.2",
+    "rc_unit": "k",
     "re": "1",
+    "re_unit": "k",
     "beta": "100",
     "vbe": "0.70",
+    "vbe_unit": "v",
 }
 
 #: Presentation-only formula captions shown under each schematic. The actual
@@ -80,31 +95,64 @@ def _parse_float(field: str, raw: str) -> float:
         raise ValidationError(f"ค่า {field.upper()} = '{raw}' ไม่ใช่ตัวเลข") from None
 
 
+def _parse_quantity(
+    field: str,
+    raw_value: str,
+    raw_unit: str,
+    units: dict[str, dict],
+    default_unit: str,
+) -> float:
+    """Convert a numeric form field plus its unit code into SI units."""
+    value = _parse_float(field, raw_value)
+    unit = (raw_unit or default_unit).strip()
+    if unit not in units:
+        raise ValidationError(f"หน่วยของ {field.upper()} ไม่ถูกต้อง")
+    return value * units[unit]["factor"]
+
+
 def _build_result(form: dict[str, str]) -> BiasResult:
-    """Convert the raw form values (kΩ) into SI units and compute the bias."""
+    """Convert the raw form values (any supported unit) into SI units."""
     bias_type = form.get("bias_type", "voltage_divider")
     if bias_type not in BIAS_TYPES:
         raise ValidationError(f"ไม่รู้จักชนิดไบแอส '{bias_type}'")
 
-    vcc = _parse_float("vcc", form["vcc"])
+    vcc = _parse_quantity(
+        "vcc", form["vcc"], form.get("vcc_unit"), VOLTAGE_UNITS, "v"
+    )
     beta = _parse_float("beta", form["beta"])
-    vbe = _parse_float("vbe", form["vbe"])
-    rc = _parse_float("rc", form["rc"]) * KILO
+    vbe = _parse_quantity(
+        "vbe", form["vbe"], form.get("vbe_unit"), VOLTAGE_UNITS, "v"
+    )
+    rc = _parse_quantity(
+        "rc", form["rc"], form.get("rc_unit"), RESISTOR_UNITS, "k"
+    )
 
     if bias_type == "fixed":
-        rb = _parse_float("rb", form["rb"]) * KILO
+        rb = _parse_quantity(
+            "rb", form["rb"], form.get("rb_unit"), RESISTOR_UNITS, "k"
+        )
         return compute_fixed_bias(vcc=vcc, rb=rb, rc=rc, beta=beta, vbe=vbe)
 
     if bias_type == "emitter":
-        rb = _parse_float("rb", form["rb"]) * KILO
-        re = _parse_float("re", form["re"]) * KILO
+        rb = _parse_quantity(
+            "rb", form["rb"], form.get("rb_unit"), RESISTOR_UNITS, "k"
+        )
+        re = _parse_quantity(
+            "re", form["re"], form.get("re_unit"), RESISTOR_UNITS, "k"
+        )
         return compute_emitter_bias(
             vcc=vcc, rb=rb, rc=rc, re=re, beta=beta, vbe=vbe
         )
 
-    r1 = _parse_float("r1", form["r1"]) * KILO
-    r2 = _parse_float("r2", form["r2"]) * KILO
-    re = _parse_float("re", form["re"]) * KILO
+    r1 = _parse_quantity(
+        "r1", form["r1"], form.get("r1_unit"), RESISTOR_UNITS, "k"
+    )
+    r2 = _parse_quantity(
+        "r2", form["r2"], form.get("r2_unit"), RESISTOR_UNITS, "k"
+    )
+    re = _parse_quantity(
+        "re", form["re"], form.get("re_unit"), RESISTOR_UNITS, "k"
+    )
     return compute_voltage_divider_bias(
         vcc=vcc, r1=r1, r2=r2, rc=rc, re=re, beta=beta, vbe=vbe
     )
@@ -143,6 +191,8 @@ def index():
             result=result,
             error=error,
             formulas=BIAS_FORMULAS,
+            resistor_units=RESISTOR_UNITS,
+            voltage_units=VOLTAGE_UNITS,
         ),
         status,
     )

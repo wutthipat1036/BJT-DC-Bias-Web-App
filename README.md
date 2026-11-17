@@ -8,8 +8,8 @@ Flask Web Application สำหรับคำนวณ **DC Operating Point (Q-
 
 - เลือก **Bias Type** จาก dropdown: Voltage Divider / Fixed Bias / Emitter Bias
 - ฟิลด์กรอกค่า สมการ และแผนผังวงจรเปลี่ยนตามชนิดไบแอสที่เลือก
-- Python Backend คำนวณ `VB, VE, VC, VCE, IB, IC, IE`
-- แปลงหน่วยตัวต้านทาน kΩ → Ω ก่อนคำนวณ
+- เลือกหน่วยของแต่ละค่าได้: ตัวต้านทาน **Ω / kΩ / MΩ**, แรงดัน **V / mV**
+- Python Backend แปลงค่าทุกหน่วยเป็น SI (Ω, V) ก่อนคำนวณ `VB, VE, VC, VCE, IB, IC, IE`
 - แสดงหน่วยกำกับทุกค่า และแจ้ง **Operating Region** (Active / Saturation / Cut-off)
 - Input Validation: ค่าติดลบ/ศูนย์/ไม่ใช่ตัวเลข แสดงข้อความผิดพลาดโดยไม่ทำให้เว็บล้ม
 - Automated Tests ทั้งฝั่ง Engineering Logic และ Flask HTTP Route
@@ -71,6 +71,8 @@ python -m unittest discover -s tests -v
 ## 📐 Engineering Model
 
 แอปรองรับ 3 ชนิดไบแอส (เลือกได้จาก dropdown **Bias Type**)
+ตัวต้านทานกรอกได้เป็น Ω / kΩ / MΩ และแรงดันเป็น V / mV — `app.py` แปลงทุกค่า
+เป็น SI (Ω, V) ก่อนเรียก `dc_bias.py`
 
 ### 1) Voltage Divider Bias (Approximate, I_B ≈ 0)
 
